@@ -44,7 +44,6 @@ def get_coder_response(formula_text, prompt, MODEL_NAME='qwen-plus', temperature
     )
 
     ans = ''.join([chunk.choices[0].delta.content for chunk in response if chunk.choices[0].delta.content])
-    print(ans)
     # ans = response.choices[0].message.content
     return extract_python_code(ans)
 

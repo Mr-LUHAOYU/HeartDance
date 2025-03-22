@@ -3,6 +3,7 @@ from .funcation_call import get_funcation_call_response
 from .search import search
 from .utils import latex_delimiters
 
+
 def ai_chat_response(message: str, history) -> str:
     # 调用搜索函数获取最相关的文档
     search_results = search(message, top_k=1)

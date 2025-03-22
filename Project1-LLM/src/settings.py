@@ -1,6 +1,6 @@
 import gradio as gr
 from processing.clients import coder_models, ocr_models
-
+import json
 
 def settings_init():
     config = {
@@ -24,7 +24,9 @@ def update_settings(ocr_model, coder_model, ocr_temperature, coder_temperature):
         "ocr_temperature": ocr_temperature,
         "coder_temperature": coder_temperature,
     }
-    return str(config), "设置更新成功！\n" + str(config) + "\n"
+    output_log = json.dumps(config)
+    config = str(config)
+    return config, "设置更新成功！\n```json\n" + output_log + "\n```\n"
 
 
 def settings_interface(settings: gr.Textbox):
@@ -58,7 +60,7 @@ def settings_interface(settings: gr.Textbox):
         )
 
     update_btn = gr.Button("Update Settings")
-    logging_btn = gr.JSON("Show Logs")
+    logging_btn = gr.Markdown("Show Logs")
     update_btn.click(
         fn=update_settings,
         inputs=[ocr_model, coder_model, ocr_temperature, coder_temperature],

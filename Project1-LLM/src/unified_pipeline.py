@@ -6,6 +6,7 @@ from processing import (
     ocr_clients, coder_clients
 )
 import shutil
+from .inject2db import inject2db
 
 
 class UnifiedPipeline:
@@ -47,7 +48,7 @@ class UnifiedPipeline:
 
     def inject_db(self):
         """调用inject2db逻辑"""
-        import src.inject2db
+        inject2db()
         return "数据注入成功！"
 
     def cp_temp2kb(self):

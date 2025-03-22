@@ -1,17 +1,20 @@
 import gradio as gr
 import os
 from .utils import latex_delimiters, KNOWLEDGE_BASE
+from .inject2db import inject2db
 
 
 def view_file(f: str):
     _code = gr.Code(visible=False)
     _markdown = gr.Markdown(visible=False)
     _json = gr.JSON(visible=False)
-
+    if f is None:
+        _markdown.visible = True
+        return _code, _markdown, _json
     try:
         file = f[-1]
     except IndexError:
-        _code.visible = True
+        _markdown.visible = True
         return _code, _markdown, _json
 
     if file.endswith(".py"):
@@ -43,7 +46,7 @@ def delete_file(file_paths: list[str]):
     for file_path in file_paths:
         os.remove(file_path)
     if file_paths:
-        import src.inject2db
+        inject2db()
     return gr.FileExplorer(root_dir=KNOWLEDGE_BASE, ignore_glob='*.db')
 
 
@@ -70,6 +73,7 @@ def knowledge_sys():
         fn=lambda: gr.FileExplorer(
             root_dir=KNOWLEDGE_BASE,
             ignore_glob='*.db',
+            value=[]
         ),
         outputs=file_browser
     )

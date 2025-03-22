@@ -8,12 +8,14 @@ os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
+
 def cosine_similarity(v1, v2):
     """计算两个向量之间的余弦相似度"""
     dot_product = np.dot(v1, v2)
     norm_v1 = np.linalg.norm(v1)
     norm_v2 = np.linalg.norm(v2)
     return dot_product / (norm_v1 * norm_v2)
+
 
 def search(query, top_k=1):
     # 连接到数据库
@@ -42,6 +44,7 @@ def search(query, top_k=1):
 
     # 返回前 top_k 个结果
     return similarities[:top_k]
+
 
 if __name__ == "__main__":
     # 测试搜索功能

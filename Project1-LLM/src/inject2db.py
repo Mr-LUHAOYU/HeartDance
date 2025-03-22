@@ -29,45 +29,46 @@ def read_all_md_files_from_knowledge_base():
     return result
 
 
-# 连接到数据库
-conn = sqlite3.connect(f"{KNOWLEDGE_BASE}/knowledge_base.db")
-cursor = conn.cursor()
+def inject2db():
+    # 连接到数据库
+    conn = sqlite3.connect(f"{KNOWLEDGE_BASE}/knowledge_base.db")
+    cursor = conn.cursor()
 
-# 创建表（如果不存在）
-cursor.execute(
-    """
-CREATE TABLE IF NOT EXISTS embeddings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    filename TEXT NOT NULL,
-    embedding BLOB NOT NULL
-)
-"""
-)
-# 清空表
-cursor.execute(
-    """
-DELETE FROM embeddings;
-"""
-)
-
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-
-# 处理 Markdown 文件
-mds = read_all_md_files_from_knowledge_base()
-for filename, content in mds.items():  # 迭代 md 字典的 items() 方法获取键值对
-    embeddings = model.encode(content)
-    # 将 embeddings 转换为 bytes 以存储在 SQLite 中
-    embedding_bytes = np.array(embeddings).tobytes()
-
-    # 插入数据
+    # 创建表（如果不存在）
     cursor.execute(
-        "INSERT INTO embeddings (filename, embedding) VALUES (?, ?)",
-        (filename, embedding_bytes),
+        """
+    CREATE TABLE IF NOT EXISTS embeddings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename TEXT NOT NULL,
+        embedding BLOB NOT NULL
     )
-    print(f"Stored {filename} in the database.")
+    """
+    )
+    # 清空表
+    cursor.execute(
+        """
+    DELETE FROM embeddings;
+    """
+    )
 
-# 提交更改并关闭连接
-conn.commit()
-conn.close()
+    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-print("Embeddings have been successfully stored in the database.")
+    # 处理 Markdown 文件
+    mds = read_all_md_files_from_knowledge_base()
+    for filename, content in mds.items():  # 迭代 md 字典的 items() 方法获取键值对
+        embeddings = model.encode(content)
+        # 将 embeddings 转换为 bytes 以存储在 SQLite 中
+        embedding_bytes = np.array(embeddings).tobytes()
+
+        # 插入数据
+        cursor.execute(
+            "INSERT INTO embeddings (filename, embedding) VALUES (?, ?)",
+            (filename, embedding_bytes),
+        )
+        print(f"Stored {filename} in the database.")
+
+    # 提交更改并关闭连接
+    conn.commit()
+    conn.close()
+
+    print("Embeddings have been successfully stored in the database.")
