@@ -5,8 +5,8 @@ import os
 load_dotenv()
 coder_clients = dict()
 ocr_clients = dict()
-coder_models = ['qwen-plus']
-ocr_models = ['qwen-vl-plus']
+coder_models = ['qwen-plus', 'qwq-32b', 'qwq-plus']
+ocr_models = ['qwen-vl-plus', 'qwen-vl-max', 'qvq-72b-preview']
 
 for MODEL_NAME in coder_models:
     coder_clients[MODEL_NAME] = OpenAI(

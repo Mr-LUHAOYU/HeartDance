@@ -42,9 +42,12 @@ def get_tool_response(formula_text, prompt, MODEL_NAME='qwen-plus', temperature=
         model=MODEL_NAME,
         messages=messages,
         temperature=temperature,
+        stream=True
     )
 
-    ans = response.choices[0].message.content
+    # ans = response.choices[0].message.content
+    ans = ''.join([chunk.choices[0].delta.content for chunk in response if chunk.choices[0].delta.content])
+
     return extract_json_tool(ans)
 
 

@@ -6,6 +6,7 @@ from src.utils import KNOWLEDGE_BASE
 from src.file2cloud import upload_to_oss
 from .clients import ocr_clients
 
+
 # MODEL_NAME = "qwen-vl-plus"
 #
 # ocr_client = OpenAI(
@@ -72,16 +73,19 @@ def get_ocr_response(image_path, MODEL_NAME='qwen-vl-plus', temperature=0):
         model=MODEL_NAME,
         messages=messages,
         temperature=temperature,
+        stream=True,
     )
 
-    content = response.choices[0].message.content
+    # content = response.choices[0].message.content
+    content = ''.join([chunk.choices[0].delta.content for chunk in response if chunk.choices[0].delta.content])
+
     content = replace_latex_delimiters(content)
     return content
 
 
 def process_image(
-        file_path: str, tar_dir: str = KNOWLEDGE_BASE,
-        MODEL_NAME='qwen-vl-plus', temperature=0
+    file_path: str, tar_dir: str = KNOWLEDGE_BASE,
+    MODEL_NAME='qwen-vl-plus', temperature=0
 ):
     name = os.path.basename(file_path)
     name = name.split(".")[0]
@@ -99,8 +103,8 @@ def process_image(
 
 
 def vl_chat_bot(
-        path, tar_dir: str | Path = KNOWLEDGE_BASE,
-        MODEL_NAME='qwen-vl-plus', temperature=0,
+    path, tar_dir: str | Path = KNOWLEDGE_BASE,
+    MODEL_NAME='qwen-vl-plus', temperature=0,
 ):
     if not os.path.exists(path):
         return "input image folder path not exits."

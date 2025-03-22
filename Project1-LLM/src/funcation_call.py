@@ -243,10 +243,13 @@ def get_funcation_call_response(query, MODEL_NAME='qwen-plus'):
         model=MODEL_NAME,
         messages=messages,
         temperature=0,
+        stream=True,
     )
 
-    ans = response.choices[0].message.content
+    # ans = response.choices[0].message.content
+    ans = ''.join([chunk.choices[0].delta.content for chunk in response])
     print(f"Funcation Call Response: {ans}")
+
     name_and_arguments = parse_function_parameters(ans)
     func_name = name_and_arguments.get("name")
     if func_name is None:

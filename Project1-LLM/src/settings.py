@@ -58,7 +58,7 @@ def settings_interface(settings: gr.Textbox):
         )
 
     update_btn = gr.Button("Update Settings")
-    logging_btn = gr.Button("Show Logs")
+    logging_btn = gr.JSON("Show Logs")
     update_btn.click(
         fn=update_settings,
         inputs=[ocr_model, coder_model, ocr_temperature, coder_temperature],
