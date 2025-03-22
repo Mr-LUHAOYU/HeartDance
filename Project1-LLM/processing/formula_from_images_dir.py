@@ -79,12 +79,15 @@ def get_ocr_response(image_path, MODEL_NAME='qwen-vl-plus', temperature=0):
     return content
 
 
-def process_image(file_path: str, tar_dir: str = KNOWLEDGE_BASE):
+def process_image(
+        file_path: str, tar_dir: str = KNOWLEDGE_BASE,
+        MODEL_NAME='qwen-vl-plus', temperature=0
+):
     name = os.path.basename(file_path)
     name = name.split(".")[0]
     print(f"---- processing {name} ----")
     try:
-        image_description = get_ocr_response(file_path)
+        image_description = get_ocr_response(file_path, MODEL_NAME, temperature)
         # 写入本地文件
         with open(f"{tar_dir}/{name}.md", "w", encoding="utf-8") as f:
             f.write(image_description)
@@ -95,13 +98,16 @@ def process_image(file_path: str, tar_dir: str = KNOWLEDGE_BASE):
         yield str(e)
 
 
-def vl_chat_bot(path, tar_dir: str | Path = KNOWLEDGE_BASE):
+def vl_chat_bot(
+        path, tar_dir: str | Path = KNOWLEDGE_BASE,
+        MODEL_NAME='qwen-vl-plus', temperature=0,
+):
     if not os.path.exists(path):
         return "input image folder path not exits."
 
     if os.path.isfile(path):
         # 如果是文件直接处理
-        yield from process_image(path, tar_dir)
+        yield from process_image(path, tar_dir, MODEL_NAME, temperature)
     elif os.path.isdir(path):
         image_files = [
             f for f in os.listdir(path) if f.lower().endswith((".png", ".jpg", ".jpeg"))
@@ -110,7 +116,7 @@ def vl_chat_bot(path, tar_dir: str | Path = KNOWLEDGE_BASE):
 
         for index, file in enumerate(image_files):
             file_path = os.path.join(path, file)
-            image_description = next(process_image(file_path, tar_dir))
+            image_description = next(process_image(file_path, tar_dir, MODEL_NAME, temperature))
 
             progress = (index + 1) / total_files * 100
             yield f"# Progress: {progress:.2f}% ({index + 1}/{total_files})\n\n" + image_description

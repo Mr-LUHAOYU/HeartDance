@@ -9,7 +9,7 @@ import shutil
 
 
 class UnifiedPipeline:
-    def __init__(self, input_path: list[str], ocr_model, coder_model):
+    def __init__(self, input_path: list[str], ocr_model, coder_model, ocr_temperature, coder_temperature):
         self.input_path = input_path
         self.temp_dir = Path(TEMP_FOLDER)
         if os.path.exists(self.temp_dir):
@@ -17,21 +17,37 @@ class UnifiedPipeline:
         self.temp_dir.mkdir(exist_ok=True)
         self.ocr_name = ocr_model
         self.coder_name = coder_model
+        self.ocr_temperature = ocr_temperature
+        self.coder_temperature = coder_temperature
+        print(f"OCR model: {ocr_model}")
+        print(f"Coder model: {coder_model}")
+        print(f"OCR temperature: {ocr_temperature}")
+        print(f"Coder temperature: {coder_temperature}")
 
     def process_image(self):
         """调用formula_from_images_dir逻辑"""
-        return vl_chat_bot(self.temp_dir, self.temp_dir)
+        return vl_chat_bot(
+            self.temp_dir, self.temp_dir,
+            self.ocr_name, self.ocr_temperature
+        )
 
     def generate_code(self):
         """调用code_from_formulas_dir逻辑"""
-        return code_chat_from_formulas_dir(self.temp_dir, formulas2code, self.temp_dir)
+        return code_chat_from_formulas_dir(
+            self.temp_dir, formulas2code, self.temp_dir,
+            self.coder_name, self.coder_temperature
+        )
 
     def generate_json(self):
         """调用json_from_codes_dir逻辑"""
-        return json_chat_from_codes_dir(self.temp_dir, code2json, self.temp_dir)
+        return json_chat_from_codes_dir(
+            self.temp_dir, code2json, self.temp_dir,
+            self.coder_name, self.coder_temperature
+        )
 
     def inject_db(self):
         """调用inject2db逻辑"""
+        import src.inject2db
         return "数据注入成功！"
 
     def cp_temp2kb(self):

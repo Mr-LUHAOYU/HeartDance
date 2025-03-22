@@ -48,14 +48,17 @@ def get_tool_response(formula_text, prompt, MODEL_NAME='qwen-plus', temperature=
     return extract_json_tool(ans)
 
 
-def process_md(file_path, prompt, tar_dir: str = KNOWLEDGE_BASE):
+def process_md(
+        file_path, prompt, tar_dir: str = KNOWLEDGE_BASE,
+        MODEL_NAME='qwen-plus', temperature=0
+):
     name = os.path.basename(file_path)
     name = name.split(".")[0]
     print(f"---- processing {name} ----")
     try:
         with open(file_path, encoding="utf-8") as f:
             formula_text = f.read()
-        json_tool = get_tool_response(formula_text, prompt)
+        json_tool = get_tool_response(formula_text, prompt, MODEL_NAME, temperature)
         # 写入本地文件
         with open(f"{tar_dir}/{name}.json", "w", encoding="utf-8") as f:
             json_object = json_repair.repair_json(json_tool, ensure_ascii=False)
@@ -67,13 +70,16 @@ def process_md(file_path, prompt, tar_dir: str = KNOWLEDGE_BASE):
         yield str(e)
 
 
-def code_chat(path, prompt, tar_dir: str | Path = KNOWLEDGE_BASE):
+def code_chat(
+        path, prompt, tar_dir: str | Path = KNOWLEDGE_BASE,
+        MODEL_NAME='qwen-plus', temperature=0
+):
     if not os.path.exists(path):
         return "input image folder path not exits."
 
     if os.path.isfile(path) and path.lower().endswith((".py", ".py3")):
         # 如果是文件直接处理
-        yield from process_md(path, prompt, tar_dir)
+        yield from process_md(path, prompt, tar_dir, MODEL_NAME, temperature)
     elif os.path.isdir(path):
         py_files = [
             f for f in os.listdir(path) if f.lower().endswith((".py", ".py3"))
@@ -82,7 +88,7 @@ def code_chat(path, prompt, tar_dir: str | Path = KNOWLEDGE_BASE):
 
         for index, file in enumerate(py_files):
             file_path = os.path.join(path, file)
-            image_description = next(process_md(file_path, prompt, tar_dir))
+            image_description = next(process_md(file_path, prompt, tar_dir, MODEL_NAME, temperature))
 
             progress = (index + 1) / total_files * 100
             yield f"# Progress: {progress:.2f}% ({index + 1}/{total_files})\n\n" + image_description

@@ -46,14 +46,17 @@ def get_coder_response(formula_text, prompt, MODEL_NAME='qwen-plus', temperature
     return extract_python_code(ans)
 
 
-def process_md(file_path, prompt, tar_dir: str = KNOWLEDGE_BASE):
+def process_md(
+        file_path, prompt, tar_dir: str = KNOWLEDGE_BASE,
+        MODEL_NAME='qwen-plus', temperature=0
+):
     name = os.path.basename(file_path)
     name = name.split(".")[0]
     print(f"---- processing {name} ----")
     try:
         with open(file_path, encoding="utf-8") as f:
             formula_text = f.read()
-        python_code = get_coder_response(formula_text, prompt)
+        python_code = get_coder_response(formula_text, prompt, MODEL_NAME, temperature)
         # 写入本地文件
         with open(f"{tar_dir}/{name}.py", "w", encoding="utf-8") as f:
             f.write(python_code)
@@ -64,13 +67,16 @@ def process_md(file_path, prompt, tar_dir: str = KNOWLEDGE_BASE):
         yield str(e)
 
 
-def code_chat(path, prompt, tar_dir: str | Path = KNOWLEDGE_BASE):
+def code_chat(
+        path, prompt, tar_dir: str | Path = KNOWLEDGE_BASE,
+        MODEL_NAME='qwen-plus', temperature=0
+):
     if not os.path.exists(path):
         return "input image folder path not exits."
 
     if os.path.isfile(path) and path.endswith(".md"):
         # 如果是文件直接处理
-        yield from process_md(path, prompt, tar_dir)
+        yield from process_md(path, prompt, tar_dir, MODEL_NAME, temperature)
     elif os.path.isdir(path):
         md_files = [
             f for f in os.listdir(path) if f.lower().endswith((".md", ".markdown"))
@@ -79,7 +85,7 @@ def code_chat(path, prompt, tar_dir: str | Path = KNOWLEDGE_BASE):
 
         for index, file in enumerate(md_files):
             file_path = os.path.join(path, file)
-            image_description = next(process_md(file_path, prompt, tar_dir))
+            image_description = next(process_md(file_path, prompt, tar_dir, MODEL_NAME, temperature))
 
             progress = (index + 1) / total_files * 100
             yield f"# Progress: {progress:.2f}% ({index + 1}/{total_files})\n\n" + image_description

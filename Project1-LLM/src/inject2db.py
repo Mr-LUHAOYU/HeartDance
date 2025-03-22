@@ -1,6 +1,6 @@
 import os
 from sentence_transformers import SentenceTransformer
-from src.utils import KNOWLEDGE_BASE
+from .utils import KNOWLEDGE_BASE
 import sqlite3
 import numpy as np
 
