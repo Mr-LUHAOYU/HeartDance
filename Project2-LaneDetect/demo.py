@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-import torch
+# import torch
 from skimage.metrics import structural_similarity as ssim
 from ultralytics import YOLO
 import argparse
