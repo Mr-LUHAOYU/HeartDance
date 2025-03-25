@@ -4,7 +4,6 @@ import torch.optim as optim
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import matplotlib.pyplot as plt
 
 # 加载数据
 data_train = pd.read_csv('data_origin.csv')
@@ -36,7 +35,7 @@ class Autoencoder(nn.Module):
             nn.LayerNorm(input_dim),
             nn.Linear(input_dim, encoding_dim),
             nn.LayerNorm(encoding_dim),
-            nn.ReLU()
+            nn.Softmax()
         )
 
         # 解码器
@@ -59,6 +58,7 @@ encoding_dim = 20  # 编码层的维度，可以根据需要调整
 model = Autoencoder(input_dim, encoding_dim)
 
 criterion = nn.MSELoss()  # 使用均方误差作为损失函数
+L1_criterion = nn.L1Loss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)  # 使用 Adam 优化器
 
 # 训练参数
@@ -74,7 +74,7 @@ for epoch in range(num_epochs):
         batch = X_train[i:i + batch_size]
         # 前向传播
         output = model(batch)
-        loss = criterion(output, batch)
+        loss = criterion(output, batch) + L1_criterion(output, batch)
         # 反向传播和优化
         optimizer.zero_grad()
         loss.backward()
@@ -89,42 +89,34 @@ model.eval()
 # 获取重构误差阈值
 with torch.no_grad():
     X_train_pred = model(X_train)
-mse = [criterion(output, batch).item() for output, batch in zip(X_train_pred, X_train)]
-mse = np.array(mse)
-print(mse.min(), mse.max(), np.percentile(mse, 95))
+loss_train = [criterion(output, batch).item() for output, batch in zip(X_train_pred, X_train)]
+loss_train = np.array(loss_train)
+# print(mse.min(), mse.max(), np.percentile(mse, 95))
 
 # 对测试集进行预测
 with torch.no_grad():
     X_test_pred = model(X_test)
 
 # 计算重构误差（均方误差）
-# mse = torch.mean((X_test - X_test_pred) ** 2, dim=1).numpy()
-mse = [criterion(output, batch).item() for output, batch in zip(X_test_pred, X_test)]
-mse = np.array(mse)
-# mse = criterion(X_test_pred, X_test)
-# mse = np.sqrt(mse)
-print(mse)
-threshold = np.percentile(mse, 50)
-print(threshold)
+loss_test = [criterion(output, batch).item() for output, batch in zip(X_test_pred, X_test)]
+loss_test = np.array(loss_test)
+
 
 # 检测异常
-anomalies = mse > threshold
+def show(threshold):
+    print(threshold)
+    anomalies = loss_test > threshold
 
-from sklearn.metrics import confusion_matrix
+    from sklearn.metrics import confusion_matrix
 
-cm = confusion_matrix(
-    y_label, anomalies
-)
-print(cm)
+    cm = confusion_matrix(
+        y_label, anomalies
+    )
+    print(cm)
 
-# 可视化重构误差
-plt.figure(figsize=(10, 6))
-plt.hist(mse, bins=50)
-plt.axvline(threshold, color='r', linestyle='dashed', linewidth=2)
-plt.xlabel("Reconstruction error")
-plt.ylabel("Frequency")
-plt.title("Reconstruction error distribution")
-plt.show()
+
+show(np.percentile(loss_train, 95))
+show(np.percentile(loss_test, 50))
 
 # 保存模型
 torch.save(model.state_dict(), 'autoencoder_model.pth')
