@@ -1,11 +1,16 @@
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+from tqdm import tqdm, trange
+from sklearn.metrics import confusion_matrix
 
-# 加载数据
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
+
 data_train = pd.read_csv('data_origin.csv')
 
 data_test1 = pd.read_csv('metrics_abnormal.csv')
@@ -23,8 +28,9 @@ data_test = pd.concat([pd.DataFrame(data_test1), pd.DataFrame(data_test2)]).to_n
 y_label = np.append([], [y_label1, y_label2])
 
 # 将数据转换为 PyTorch 张量
-X_train = torch.tensor(data_train, dtype=torch.float32)
-X_test = torch.tensor(data_test, dtype=torch.float32)
+X_train = torch.tensor(data_train, dtype=torch.float32, device=device)
+X_test = torch.tensor(data_test, dtype=torch.float32, device=device)
+y_label = torch.tensor(y_label, dtype=torch.float32, device=device)
 
 
 class Autoencoder(nn.Module):
@@ -35,7 +41,7 @@ class Autoencoder(nn.Module):
             nn.LayerNorm(input_dim),
             nn.Linear(input_dim, encoding_dim),
             nn.LayerNorm(encoding_dim),
-            nn.Softmax()
+            nn.ReLU()
         )
 
         # 解码器
@@ -52,71 +58,59 @@ class Autoencoder(nn.Module):
         return decoded
 
 
-# 初始化模型
-input_dim = X_train.shape[1]
-encoding_dim = 20  # 编码层的维度，可以根据需要调整
-model = Autoencoder(input_dim, encoding_dim)
+def train8test(encoding_dim=20, num_epochs=30, batch_size=16, lr=0.001):
+    input_dim = X_train.shape[1]
+    model = Autoencoder(input_dim, encoding_dim)
+    model.to(device=device)
 
-criterion = nn.MSELoss()  # 使用均方误差作为损失函数
-L1_criterion = nn.L1Loss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)  # 使用 Adam 优化器
+    criterion = nn.MSELoss()
+    L1_criterion = nn.L1Loss()
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
-# 训练参数
-num_epochs = 30
-batch_size = 16
+    # 训练过程
+    for epoch in trange(num_epochs):
+        model.train()
+        LOSS = 0
+        for i in range(0, len(X_train), batch_size):
+            # 获取小批量数据
+            batch = X_train[i:i + batch_size]
+            # 前向传播
+            output = model(batch)
+            loss = criterion(output, batch) + L1_criterion(output, batch)
+            # 反向传播和优化
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            LOSS += loss.item()
 
-# 训练过程
-for epoch in range(num_epochs):
-    model.train()
-    LOSS = 0
-    for i in range(0, len(X_train), batch_size):
-        # 获取小批量数据
-        batch = X_train[i:i + batch_size]
-        # 前向传播
-        output = model(batch)
-        loss = criterion(output, batch) + L1_criterion(output, batch)
-        # 反向传播和优化
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        LOSS += loss.item()
-    # 打印训练损失
-    print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {LOSS:.4f}')
+    model.eval()
 
-# 切换到评估模式
-model.eval()
+    with torch.no_grad():
+        X_test_pred = model(X_test)
+    loss_test = [criterion(output, batch).item() for output, batch in zip(X_test_pred, X_test)]
 
-# 获取重构误差阈值
-with torch.no_grad():
-    X_train_pred = model(X_train)
-loss_train = [criterion(output, batch).item() for output, batch in zip(X_train_pred, X_train)]
-loss_train = np.array(loss_train)
-# print(mse.min(), mse.max(), np.percentile(mse, 95))
+    threshold = np.percentile(loss_test, 50)
+    anomalies = np.array(loss_test) > threshold
+    tn, fp, fn, tp = confusion_matrix(y_label.cpu().numpy(), anomalies).ravel()
+    accuracy = (tp + tn) / (tp + tn + fp + fn)
+    recall = tp / (tp + fn)
+    precision = tp / (tp + fp)
+    f1 = 2 * (precision * recall) / (precision + recall)
 
-# 对测试集进行预测
-with torch.no_grad():
-    X_test_pred = model(X_test)
-
-# 计算重构误差（均方误差）
-loss_test = [criterion(output, batch).item() for output, batch in zip(X_test_pred, X_test)]
-loss_test = np.array(loss_test)
+    return pd.DataFrame({
+        'encoding-dim': [encoding_dim],
+        'Accuracy': [accuracy],
+        'Recall': [recall],
+        'Precision': [precision],
+        'F1-score': [f1],
+    })
 
 
-# 检测异常
-def show(threshold):
-    print(threshold)
-    anomalies = loss_test > threshold
+result = pd.DataFrame(columns=['encoding-dim', 'Accuracy', 'Recall', 'Precision', 'F1-score'])
+for encoding_dim in range(16, 61):
+    info = train8test(encoding_dim=encoding_dim)
+    result = pd.concat([result, info], ignore_index=True)
 
-    from sklearn.metrics import confusion_matrix
-
-    cm = confusion_matrix(
-        y_label, anomalies
-    )
-    print(cm)
-
-
-show(np.percentile(loss_train, 95))
-show(np.percentile(loss_test, 50))
-
-# 保存模型
-torch.save(model.state_dict(), 'autoencoder_model.pth')
+result.to_csv('result1.csv')
+result.plot()
+plt.show()
