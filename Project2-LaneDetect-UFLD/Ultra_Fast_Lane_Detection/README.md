@@ -86,9 +86,9 @@ Same as training, multi-gpu evaluation is also supported.
 
 We provide a script to visualize the detection results. Run the following commands to visualize on the testing set of CULane and Tusimple.
 ```Shell
-python demo.py configs/culane.py --test_model path_to_culane_18.pth
+python core.py configs/culane.py --test_model path_to_culane_18.pth
 # or
-python demo.py configs/tusimple.py --test_model path_to_tusimple_18.pth
+python core.py configs/tusimple.py --test_model path_to_tusimple_18.pth
 ```
 
 Since the testing set of Tusimple is not ordered, the visualized video might look bad and we **do not recommend** doing this.
