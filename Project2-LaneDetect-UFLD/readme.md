@@ -36,6 +36,7 @@
 
 ## 3. 项目结构
 ```
+Ultra_Fast_Lane_Detection
 ├── checkpoints/
 │   └── tusimple_18.pth          # UFLD预训练模型
 ├── data/
@@ -46,6 +47,9 @@
 ├── image/                       # 输出图像存储目录
 ├── yolov8n.pt                   # YOLOv8检测模型
 └── Vehicle-lane-detection.py    # 主程序
+Chinese_license_plate_detection_recognition
+main.py
+company.yml
 ```
 
 ---
@@ -104,29 +108,14 @@ graph TD
 
 ## 6. 使用方法
 
-### 6.1 运行参数
-```python
-# 视频处理入口
-process_video(
-    video_path = "../车压线视频/32010120210610092038370.mp4"  # 输入视频路径
-)
-```
+### 6.1 如何执行
 
-### 6.2 如何执行
-我们提供了两个版本的车压线识别，与一个车牌识别代码。
+使用main.py文件即可运行，需要安装相关依赖，使用company.yml文件进行环境配置。
 
-车压线识别：
-
-- 版本1：Ultra-Fast-Lane-Detection/Vehicle-lane-detection.py使用Yolov8+UFLD
-- 版本2：Ultra-Fast-Lane-Detection/Vehicle-lane-detection-without-ufld.py 使用Yolov8+Canny+Hough
-
-车牌识别：
-
-识别出压线图片后运行Chinese_license_plate_detection_recognition\/test_plate_dete.py即可（本项目在image文件夹中提供了输出图片）
-
-### 6.3 注意事项
+### 6.2 注意事项
 
 由于github单文件限制不能超过100MB，你可以在以下网址下载到UFLD的预训练权重文件[tusimple_18.pth - Google Drive](https://drive.google.com/file/d/1WCYyur5ZaWczH15ecmeDowrW30xcLrCn/view)
+注意将其放在checkpoint文件夹下。否则无法运行。
 
 ### 6.3 输出说明
 | 文件类型          | 保存路径      | 内容描述               |
