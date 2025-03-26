@@ -7,20 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import accuracy_score
 
 
-# 设置所有相关的随机种子
-def set_seed(seed):
-    np.random.seed(seed)  # NumPy随机模块
-    torch.manual_seed(seed)  # PyTorch CPU随机种子
-    torch.cuda.manual_seed_all(seed)  # PyTorch GPU随机种子
-    torch.backends.cudnn.deterministic = True  # 确保CuDNN结果确定
-    torch.backends.cudnn.benchmark = False  # 关闭CuDNN自动优化
-
-
-# 设置随机种子（例如42）
-set_seed(42)
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(device)
 
 data_train = pd.read_csv('data_origin.csv')
 
@@ -29,10 +16,10 @@ y_label1 = np.array([1] * len(data_test1))
 data_test2 = pd.read_csv('metrics_anomaly.csv')
 y_label2 = np.array([0] * len(data_test2))
 
-scaler = MinMaxScaler()
-data_train = scaler.fit_transform(data_train)
-data_test1 = scaler.fit_transform(data_test1)
-data_test2 = scaler.fit_transform(data_test2)
+# scaler = MinMaxScaler()
+# data_train = scaler.fit_transform(data_train)
+# data_test1 = scaler.fit_transform(data_test1)
+# data_test2 = scaler.fit_transform(data_test2)
 
 data_test = pd.concat([pd.DataFrame(data_test1), pd.DataFrame(data_test2)]).to_numpy()
 y_label = np.append([], [y_label1, y_label2])
@@ -108,18 +95,15 @@ def train8test(
     return pd.DataFrame(result_list, columns=['encoding-dim', 'num-epochs', 'batch-size', 'lr', 'Accuracy'])
 
 
-result = pd.DataFrame(columns=['encoding-dim', 'num-epochs', 'batch-size', 'lr', 'Accuracy'])
-done = 0
-for encoding_dim in range(10, 41):
-    for batch_size in [16, 32, 64, 128]:
-        for lr in [1e-3, 1e-4, 1e-5]:
-            info = train8test(encoding_dim=encoding_dim, batch_size=batch_size, lr=lr)
-            result = pd.concat([result, info], ignore_index=True)
-            print(f'Encoding dim: {encoding_dim}, Batch size: {batch_size}, Learning rate: {lr}, done: {done}.')
+# result = pd.DataFrame(columns=['encoding-dim', 'num-epochs', 'batch-size', 'lr', 'Accuracy'])
+# done = 0
+# for encoding_dim in range(10, 41):
+#     for batch_size in [16, 32, 64, 128]:
+#         for lr in [1e-3, 1e-4, 1e-5]:
+#             info = train8test(encoding_dim=encoding_dim, batch_size=batch_size, lr=lr)
+#             result = pd.concat([result, info], ignore_index=True)
+#             print(f'Encoding dim: {encoding_dim}, Batch size: {batch_size}, Learning rate: {lr}, done: {done}.')
+#
+# result.to_csv('result3.csv')
 
-result.to_csv('result3.csv')
-
-#  lr    acc    best-epoch
-# 1e-3   0.74      90
-# 1e-4   0.78      20
-# 1e-5
+print(train8test(encoding_dim=36, batch_size=16, num_epochs=30, lr=1e-3))
