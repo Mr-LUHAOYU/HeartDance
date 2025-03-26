@@ -74,7 +74,7 @@ class VideoProcessorApp:
         try:
             # 调用外部 Python 程序
             # 假设外部程序是 `video_to_images.py`，接受两个参数：输入视频路径和输出目录
-            external_program = "python demo.py"
+            external_program = "python core.py"
             command = f"{external_program} {input_path} {output_dir}"
 
             # 使用 subprocess 调用外部程序
