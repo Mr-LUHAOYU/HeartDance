@@ -16,17 +16,17 @@ y_label1 = np.array([1] * len(data_test1))
 data_test2 = pd.read_csv('metrics_anomaly.csv')
 y_label2 = np.array([0] * len(data_test2))
 
-# scaler = MinMaxScaler()
-# data_train = scaler.fit_transform(data_train)
-# data_test1 = scaler.fit_transform(data_test1)
-# data_test2 = scaler.fit_transform(data_test2)
+scaler = MinMaxScaler()
+data_train = scaler.fit_transform(data_train)
+data_test1 = scaler.fit_transform(data_test1)
+data_test2 = scaler.fit_transform(data_test2)
 
 data_test = pd.concat([pd.DataFrame(data_test1), pd.DataFrame(data_test2)]).to_numpy()
 y_label = np.append([], [y_label1, y_label2])
 
 X_train = torch.tensor(data_train, dtype=torch.float32).to(device=device)
 X_test = torch.tensor(data_test, dtype=torch.float32).to(device=device)
-y_label = torch.tensor(y_label, dtype=torch.float32).to(device=device)
+# y_label = torch.tensor(y_label, dtype=torch.float32).to(device=device)
 
 
 class Autoencoder(nn.Module):
@@ -83,12 +83,16 @@ def train8test(
 
             with torch.no_grad():
                 X_test_pred = model(X_test)
+            error = torch.abs(X_test_pred - X_test)
+            counts = torch.sum(error > 0.5, 1)
+            anomalies1 = (counts >= 0).numpy()
 
             loss_test = [criterion(output, batch).item() for output, batch in zip(X_test_pred, X_test)]
-
             threshold = np.percentile(loss_test, 50)
-            anomalies = np.array(loss_test) > threshold
-            accuracy = accuracy_score(y_label.cpu().numpy(), anomalies)
+            anomalies2 = np.array(loss_test) > threshold
+
+            anomalies = anomalies1 & anomalies2
+            accuracy = accuracy_score(y_label, anomalies)
 
             result_list.append([encoding_dim, epoch + 1, batch_size, lr, accuracy])
 

@@ -10,6 +10,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 data_train = pd.read_csv('data_origin.csv')
+columns = data_train.columns
 
 data_test1 = pd.read_csv('metrics_abnormal.csv')
 y_label1 = np.array([1] * len(data_test1))
@@ -112,16 +113,19 @@ class AnomalyDetection(object):
         with torch.no_grad():
             X_recon = self.model(X)
             error = torch.abs(X - X_recon)
-        # ranked_features = torch.argsort(distinctiveness, descending=True)
-        ranked_features, _ = torch.sort(error, dim=1, descending=True)
-        print(ranked_features)
-        return ranked_features.tolist()
+        ranked_features_indices = torch.argsort(error, descending=True)
+        features = columns.to_numpy()[ranked_features_indices]
+        row_indices = torch.arange(error.size(0)).unsqueeze(1).expand(-1, error.size(1))
+        score = error[row_indices, ranked_features_indices].tolist()
+        return list(zip(features, score))
 
 
 def get_anomalous_features():
     model = AnomalyDetection(**args)
     model.train(X_train, **args)
-    pd.DataFrame(model.locate_anomalous_features(X_test)).to_csv('test.csv')
+    pd.DataFrame(
+        model.locate_anomalous_features(X_test)
+    ).to_csv('test.csv', float_format='%.2f')
 
 
 def search_best_param():
@@ -145,3 +149,7 @@ def search_best_param():
                 print(f'Encoding dim: {encoding_dim}, Batch size: {batch_size}, Learning rate: {lr}, done: {done}.')
 
     result.to_csv('result3.csv')
+
+
+if __name__ == '__main__':
+    get_anomalous_features()
