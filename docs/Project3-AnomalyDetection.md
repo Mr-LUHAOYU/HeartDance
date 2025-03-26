@@ -83,9 +83,9 @@
 }
 ```
 
-该组合的性能为89%.
+该组合的性能为90%.
 
-![AE-1](img-src/AE-2.png)详细的指标结果可以参考 [result.csv](https://website-lhy.oss-cn-shanghai.aliyuncs.com/result.csv).
+![AE-1](img-src/AE-2.png)详细的指标结果可以参考 [result.csv](https://github.com/Mr-LUHAOYU/HeartDance/blob/main/Project3-AnomalyDetection/result.csv)，下载链接： [result.csv](https://website-lhy.oss-cn-shanghai.aliyuncs.com/result.csv).
 
 ### 3.2 异常特征定位
 
