@@ -6,8 +6,8 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import accuracy_score
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
 
 data_train = pd.read_csv('data_origin.csv')
 
@@ -16,10 +16,10 @@ y_label1 = np.array([1] * len(data_test1))
 data_test2 = pd.read_csv('metrics_anomaly.csv')
 y_label2 = np.array([0] * len(data_test2))
 
-# scaler = MinMaxScaler()
-# data_train = scaler.fit_transform(data_train)
-# data_test1 = scaler.fit_transform(data_test1)
-# data_test2 = scaler.fit_transform(data_test2)
+scaler = MinMaxScaler()
+data_train = scaler.fit_transform(data_train)
+data_test1 = scaler.fit_transform(data_test1)
+data_test2 = scaler.fit_transform(data_test2)
 
 data_test = pd.concat([pd.DataFrame(data_test1), pd.DataFrame(data_test2)]).to_numpy()
 y_label = np.append([], [y_label1, y_label2])
@@ -54,56 +54,94 @@ class Autoencoder(nn.Module):
         return decoded
 
 
-def train8test(
-        encoding_dim=20, num_epochs=30,
-        batch_size=16, lr=0.001,
-):
-    input_dim = X_train.shape[1]
-    model = Autoencoder(input_dim, encoding_dim).to(device=device)
-
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    result_list = []
-
-    # 训练过程
-    for epoch in range(num_epochs):
-        model.train()
-        for i in range(0, len(X_train), batch_size):
-            batch = X_train[i:i + batch_size]
-
-            output = model(batch)
-            loss = criterion(output, batch)
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-        if epoch % 10 == 9:
-            model.eval()
-
-            with torch.no_grad():
-                X_test_pred = model(X_test)
-
-            loss_test = [criterion(output, batch).item() for output, batch in zip(X_test_pred, X_test)]
-
-            threshold = np.percentile(loss_test, 50)
-            anomalies = np.array(loss_test) > threshold
-            accuracy = accuracy_score(y_label.cpu().numpy(), anomalies)
-
-            result_list.append([encoding_dim, epoch + 1, batch_size, lr, accuracy])
-
-    return pd.DataFrame(result_list, columns=['encoding-dim', 'num-epochs', 'batch-size', 'lr', 'Accuracy'])
+args = {
+    "encoding_dim": 36,
+    "num_epochs": 30,
+    "batch_size": 16,
+    "learning_rate": 1e-3
+}
 
 
-# result = pd.DataFrame(columns=['encoding-dim', 'num-epochs', 'batch-size', 'lr', 'Accuracy'])
-# done = 0
-# for encoding_dim in range(10, 41):
-#     for batch_size in [16, 32, 64, 128]:
-#         for lr in [1e-3, 1e-4, 1e-5]:
-#             info = train8test(encoding_dim=encoding_dim, batch_size=batch_size, lr=lr)
-#             result = pd.concat([result, info], ignore_index=True)
-#             print(f'Encoding dim: {encoding_dim}, Batch size: {batch_size}, Learning rate: {lr}, done: {done}.')
-#
-# result.to_csv('result3.csv')
+class AnomalyDetection(object):
+    def __init__(self, encoding_dim, learning_rate=1e-3, **kwargs):
+        input_dim = X_train.shape[1]
+        self.model = Autoencoder(input_dim, encoding_dim).to(device=device)
 
-print(train8test(encoding_dim=36, batch_size=16, num_epochs=30, lr=1e-3))
+        self.criterion = nn.MSELoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+
+    def train(self, X, batch_size, num_epochs, **kwargs):
+        # 训练过程
+        for epoch in range(num_epochs):
+            self.model.train()
+            for i in range(0, len(X), batch_size):
+                batch = X[i:i + batch_size]
+
+                output = self.model(batch)
+                loss = self.criterion(output, batch)
+
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+        self.eval_error(X)
+
+    def eval_error(self, X):
+        self.model.eval()
+        with torch.no_grad():
+            X_recon = self.model(X)
+            error = torch.abs(X - X_recon).squeeze()
+            self.std = torch.std(error, dim=0)
+            self.mean = torch.mean(error, dim=0)
+            # print(self.std)
+
+    def predict(self, X):
+        self.model.eval()
+        with torch.no_grad():
+            X_pred = self.model(X)
+
+        loss = [self.criterion(output, batch).item() for output, batch in zip(X_pred, X)]
+
+        threshold = np.percentile(loss, 50)
+        anomalies = np.array(loss) > threshold
+
+        return anomalies
+
+    def locate_anomalous_features(self, X):
+        self.model.eval()
+        with torch.no_grad():
+            X_recon = self.model(X)
+            error = torch.abs(X - X_recon)
+        # ranked_features = torch.argsort(distinctiveness, descending=True)
+        ranked_features, _ = torch.sort(error, dim=1, descending=True)
+        print(ranked_features)
+        return ranked_features.tolist()
+
+
+def get_anomalous_features():
+    model = AnomalyDetection(**args)
+    model.train(X_train, **args)
+    pd.DataFrame(model.locate_anomalous_features(X_test)).to_csv('test.csv')
+
+
+def search_best_param():
+    result = pd.DataFrame(columns=['encoding-dim', 'num-epochs', 'batch-size', 'lr', 'Accuracy'])
+    done = 0
+    for encoding_dim in range(10, 41):
+        for batch_size in [16, 32, 64, 128]:
+            for lr in [1e-3, 1e-4, 1e-5]:
+                model = AnomalyDetection(encoding_dim=encoding_dim, learning_rate=lr)
+                model.train(X_train, batch_size=batch_size, num_epochs=30)
+                y_pred = model.predict(X_test)
+                acc = accuracy_score(y_label, y_pred)
+                info = pd.DataFrame({
+                    'encoding-dim': encoding_dim,
+                    'num-epochs': 30,
+                    'batch-size': batch_size,
+                    'lr': lr,
+                    'Accuracy': acc
+                })
+                result = pd.concat([result, info], ignore_index=True)
+                print(f'Encoding dim: {encoding_dim}, Batch size: {batch_size}, Learning rate: {lr}, done: {done}.')
+
+    result.to_csv('result3.csv')
