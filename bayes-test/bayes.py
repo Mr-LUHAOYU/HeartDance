@@ -3,8 +3,8 @@ import time
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
-model_path = '../Project3-AnomalyDetection/bnlearn_model.pkl'  # 模型路径
-file_path = "../Project3-AnomalyDetection/metrics_anomaly.csv"  # 测试数据路径
+model_path = 'bnlearn_model.pkl'  # 模型路径
+file_path = "metrics_anomaly.csv"  # 测试数据路径
 
 model_dict = bn.load(filepath=model_path)
 model = model_dict['model']
