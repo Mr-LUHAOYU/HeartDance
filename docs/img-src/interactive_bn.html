@@ -1,0 +1,113 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" type="text/css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"> </script>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+
+<style type="text/css">
+
+        #mynetwork {
+            width: 100%;
+            height: 800px;
+            background-color: #ffffff;
+            border: 1px solid lightgray;
+            position: relative;
+            float: left;
+        }
+
+        
+
+        
+
+        
+</style>
+
+</head>
+
+<body>
+<div id = "mynetwork"></div>
+
+
+<script type="text/javascript">
+
+    // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById('mynetwork');
+        
+        
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([{"id": "86823", "label": "86823", "shape": "circle", "size": 160}, {"id": "86744", "label": "86744", "shape": "circle", "size": 160}, {"id": "86879", "label": "86879", "shape": "circle", "size": 160}, {"id": "86899", "label": "86899", "shape": "circle", "size": 160}, {"id": "86974", "label": "86974", "shape": "circle", "size": 160}, {"id": "86842", "label": "86842", "shape": "circle", "size": 160}, {"id": "86521", "label": "86521", "shape": "circle", "size": 160}, {"id": "86781", "label": "86781", "shape": "circle", "size": 160}, {"id": "86784", "label": "86784", "shape": "circle", "size": 160}, {"id": "91338", "label": "91338", "shape": "circle", "size": 160}, {"id": "86801", "label": "86801", "shape": "circle", "size": 160}, {"id": "91185", "label": "91185", "shape": "circle", "size": 160}, {"id": "86940", "label": "86940", "shape": "circle", "size": 160}, {"id": "91179", "label": "91179", "shape": "circle", "size": 160}, {"id": "86860", "label": "86860", "shape": "circle", "size": 160}, {"id": "86922", "label": "86922", "shape": "circle", "size": 160}, {"id": "86546", "label": "86546", "shape": "circle", "size": 160}, {"id": "86918", "label": "86918", "shape": "circle", "size": 160}, {"id": "86941", "label": "86941", "shape": "circle", "size": 160}, {"id": "86579", "label": "86579", "shape": "circle", "size": 160}, {"id": "86780", "label": "86780", "shape": "circle", "size": 160}, {"id": "86632", "label": "86632", "shape": "circle", "size": 160}, {"id": "86747", "label": "86747", "shape": "circle", "size": 160}, {"id": "91189", "label": "91189", "shape": "circle", "size": 160}, {"id": "86692", "label": "86692", "shape": "circle", "size": 160}, {"id": "86971", "label": "86971", "shape": "circle", "size": 160}, {"id": "86972", "label": "86972", "shape": "circle", "size": 160}, {"id": "86957", "label": "86957", "shape": "circle", "size": 160}, {"id": "86937", "label": "86937", "shape": "circle", "size": 160}, {"id": "87006", "label": "87006", "shape": "circle", "size": 160}, {"id": "86592", "label": "86592", "shape": "circle", "size": 160}, {"id": "91339", "label": "91339", "shape": "circle", "size": 160}, {"id": "86541", "label": "86541", "shape": "circle", "size": 160}, {"id": "90554", "label": "90554", "shape": "circle", "size": 160}, {"id": "86821", "label": "86821", "shape": "circle", "size": 160}, {"id": "86956", "label": "86956", "shape": "circle", "size": 160}, {"id": "86920", "label": "86920", "shape": "circle", "size": 160}, {"id": "86953", "label": "86953", "shape": "circle", "size": 160}, {"id": "86670", "label": "86670", "shape": "circle", "size": 160}, {"id": "86955", "label": "86955", "shape": "circle", "size": 160}, {"id": "86822", "label": "86822", "shape": "circle", "size": 160}, {"id": "86553", "label": "86553", "shape": "circle", "size": 160}, {"id": "86973", "label": "86973", "shape": "circle", "size": 160}, {"id": "86824", "label": "86824", "shape": "circle", "size": 160}, {"id": "86764", "label": "86764", "shape": "circle", "size": 160}, {"id": "86839", "label": "86839", "shape": "circle", "size": 160}, {"id": "86767", "label": "86767", "shape": "circle", "size": 160}, {"id": "86954", "label": "86954", "shape": "circle", "size": 160}, {"id": "87009", "label": "87009", "shape": "circle", "size": 160}, {"id": "86748", "label": "86748", "shape": "circle", "size": 160}, {"id": "86990", "label": "86990", "shape": "circle", "size": 160}, {"id": "87005", "label": "87005", "shape": "circle", "size": 160}, {"id": "86897", "label": "86897", "shape": "circle", "size": 160}, {"id": "87007", "label": "87007", "shape": "circle", "size": 160}, {"id": "86671", "label": "86671", "shape": "circle", "size": 160}, {"id": "86858", "label": "86858", "shape": "circle", "size": 160}, {"id": "86878", "label": "86878", "shape": "circle", "size": 160}, {"id": "86859", "label": "86859", "shape": "circle", "size": 160}, {"id": "86554", "label": "86554", "shape": "circle", "size": 160}, {"id": "86880", "label": "86880", "shape": "circle", "size": 160}, {"id": "86900", "label": "86900", "shape": "circle", "size": 160}, {"id": "86766", "label": "86766", "shape": "circle", "size": 160}, {"id": "86975", "label": "86975", "shape": "circle", "size": 160}, {"id": "91192", "label": "91192", "shape": "circle", "size": 160}, {"id": "86591", "label": "86591", "shape": "circle", "size": 160}, {"id": "86622", "label": "86622", "shape": "circle", "size": 160}, {"id": "86901", "label": "86901", "shape": "circle", "size": 160}, {"id": "86881", "label": "86881", "shape": "circle", "size": 160}, {"id": "86765", "label": "86765", "shape": "circle", "size": 160}, {"id": "85713", "label": "85713", "shape": "circle", "size": 160}, {"id": "86695", "label": "86695", "shape": "circle", "size": 160}, {"id": "90124", "label": "90124", "shape": "circle", "size": 160}, {"id": "86596", "label": "86596", "shape": "circle", "size": 160}, {"id": "86635", "label": "86635", "shape": "circle", "size": 160}, {"id": "91145", "label": "91145", "shape": "circle", "size": 160}, {"id": "86630", "label": "86630", "shape": "circle", "size": 160}, {"id": "86593", "label": "86593", "shape": "circle", "size": 160}, {"id": "86693", "label": "86693", "shape": "circle", "size": 160}, {"id": "86631", "label": "86631", "shape": "circle", "size": 160}, {"id": "85606", "label": "85606", "shape": "circle", "size": 160}, {"id": "86617", "label": "86617", "shape": "circle", "size": 160}, {"id": "86803", "label": "86803", "shape": "circle", "size": 160}, {"id": "91195", "label": "91195", "shape": "circle", "size": 160}, {"id": "91337", "label": "91337", "shape": "circle", "size": 160}]);
+        edges = new vis.DataSet([{"arrows": "to", "from": "86823", "to": "86744"}, {"arrows": "to", "from": "86823", "to": "86879"}, {"arrows": "to", "from": "86823", "to": "86899"}, {"arrows": "to", "from": "86823", "to": "86974"}, {"arrows": "to", "from": "86744", "to": "87007"}, {"arrows": "to", "from": "86974", "to": "86765"}, {"arrows": "to", "from": "86842", "to": "86521"}, {"arrows": "to", "from": "86521", "to": "86695"}, {"arrows": "to", "from": "86781", "to": "86784"}, {"arrows": "to", "from": "86781", "to": "91338"}, {"arrows": "to", "from": "86781", "to": "86899"}, {"arrows": "to", "from": "86784", "to": "86747"}, {"arrows": "to", "from": "86784", "to": "91189"}, {"arrows": "to", "from": "86784", "to": "86692"}, {"arrows": "to", "from": "91338", "to": "86592"}, {"arrows": "to", "from": "86801", "to": "91185"}, {"arrows": "to", "from": "86801", "to": "86940"}, {"arrows": "to", "from": "86801", "to": "91179"}, {"arrows": "to", "from": "86940", "to": "86579"}, {"arrows": "to", "from": "86860", "to": "86922"}, {"arrows": "to", "from": "86860", "to": "86546"}, {"arrows": "to", "from": "86922", "to": "86971"}, {"arrows": "to", "from": "86922", "to": "86972"}, {"arrows": "to", "from": "86922", "to": "86957"}, {"arrows": "to", "from": "86546", "to": "86842"}, {"arrows": "to", "from": "86918", "to": "86781"}, {"arrows": "to", "from": "86918", "to": "86860"}, {"arrows": "to", "from": "86918", "to": "86941"}, {"arrows": "to", "from": "86918", "to": "86879"}, {"arrows": "to", "from": "86941", "to": "86780"}, {"arrows": "to", "from": "86941", "to": "86632"}, {"arrows": "to", "from": "86632", "to": "86803"}, {"arrows": "to", "from": "86632", "to": "90554"}, {"arrows": "to", "from": "86747", "to": "86954"}, {"arrows": "to", "from": "86747", "to": "87009"}, {"arrows": "to", "from": "91189", "to": "86823"}, {"arrows": "to", "from": "86971", "to": "86956"}, {"arrows": "to", "from": "86971", "to": "86974"}, {"arrows": "to", "from": "86972", "to": "86920"}, {"arrows": "to", "from": "86957", "to": "86972"}, {"arrows": "to", "from": "86937", "to": "86922"}, {"arrows": "to", "from": "86937", "to": "87006"}, {"arrows": "to", "from": "87006", "to": "86553"}, {"arrows": "to", "from": "86592", "to": "86766"}, {"arrows": "to", "from": "86592", "to": "86596"}, {"arrows": "to", "from": "91339", "to": "86937"}, {"arrows": "to", "from": "91339", "to": "86747"}, {"arrows": "to", "from": "91339", "to": "86541"}, {"arrows": "to", "from": "91339", "to": "90554"}, {"arrows": "to", "from": "86541", "to": "86823"}, {"arrows": "to", "from": "86541", "to": "86897"}, {"arrows": "to", "from": "86541", "to": "86881"}, {"arrows": "to", "from": "86541", "to": "86521"}, {"arrows": "to", "from": "90554", "to": "90124"}, {"arrows": "to", "from": "86821", "to": "86592"}, {"arrows": "to", "from": "86956", "to": "86822"}, {"arrows": "to", "from": "86956", "to": "86744"}, {"arrows": "to", "from": "86956", "to": "86553"}, {"arrows": "to", "from": "86920", "to": "87005"}, {"arrows": "to", "from": "86953", "to": "86670"}, {"arrows": "to", "from": "86955", "to": "86821"}, {"arrows": "to", "from": "86553", "to": "86920"}, {"arrows": "to", "from": "86553", "to": "87009"}, {"arrows": "to", "from": "86553", "to": "91145"}, {"arrows": "to", "from": "86973", "to": "86824"}, {"arrows": "to", "from": "86764", "to": "86839"}, {"arrows": "to", "from": "86764", "to": "86767"}, {"arrows": "to", "from": "86767", "to": "91192"}, {"arrows": "to", "from": "86767", "to": "86591"}, {"arrows": "to", "from": "86767", "to": "86622"}, {"arrows": "to", "from": "87009", "to": "86858"}, {"arrows": "to", "from": "87009", "to": "86974"}, {"arrows": "to", "from": "86748", "to": "86990"}, {"arrows": "to", "from": "86990", "to": "86764"}, {"arrows": "to", "from": "86990", "to": "86671"}, {"arrows": "to", "from": "86897", "to": "86957"}, {"arrows": "to", "from": "86897", "to": "87006"}, {"arrows": "to", "from": "86897", "to": "86546"}, {"arrows": "to", "from": "86858", "to": "86744"}, {"arrows": "to", "from": "86858", "to": "90554"}, {"arrows": "to", "from": "86878", "to": "86859"}, {"arrows": "to", "from": "86878", "to": "86554"}, {"arrows": "to", "from": "86554", "to": "86617"}, {"arrows": "to", "from": "86554", "to": "86801"}, {"arrows": "to", "from": "86880", "to": "86748"}, {"arrows": "to", "from": "86880", "to": "86897"}, {"arrows": "to", "from": "86900", "to": "86822"}, {"arrows": "to", "from": "86900", "to": "86955"}, {"arrows": "to", "from": "86766", "to": "86975"}, {"arrows": "to", "from": "86975", "to": "91339"}, {"arrows": "to", "from": "86975", "to": "86541"}, {"arrows": "to", "from": "91192", "to": "91338"}, {"arrows": "to", "from": "91192", "to": "91339"}, {"arrows": "to", "from": "91192", "to": "86971"}, {"arrows": "to", "from": "91192", "to": "86953"}, {"arrows": "to", "from": "91192", "to": "86973"}, {"arrows": "to", "from": "91192", "to": "85713"}, {"arrows": "to", "from": "86591", "to": "86918"}, {"arrows": "to", "from": "86901", "to": "86878"}, {"arrows": "to", "from": "86901", "to": "86900"}, {"arrows": "to", "from": "85713", "to": "91195"}, {"arrows": "to", "from": "85713", "to": "86631"}, {"arrows": "to", "from": "86596", "to": "86922"}, {"arrows": "to", "from": "86596", "to": "86937"}, {"arrows": "to", "from": "86596", "to": "86897"}, {"arrows": "to", "from": "86635", "to": "86901"}, {"arrows": "to", "from": "91145", "to": "86630"}, {"arrows": "to", "from": "86630", "to": "91189"}, {"arrows": "to", "from": "86630", "to": "86692"}, {"arrows": "to", "from": "86593", "to": "86880"}, {"arrows": "to", "from": "86593", "to": "86635"}, {"arrows": "to", "from": "86593", "to": "86693"}, {"arrows": "to", "from": "86693", "to": "91337"}, {"arrows": "to", "from": "86631", "to": "85606"}]);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": false,
+            "type": "continuous"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -80000,
+            "springConstant": 0.001,
+            "springLength": 200
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+        
+        
+
+        
+
+        network = new vis.Network(container, data, options);
+
+        
+
+
+        
+
+        return network;
+
+    }
+
+    drawGraph();
+
+</script>
+</body>
+</html>
