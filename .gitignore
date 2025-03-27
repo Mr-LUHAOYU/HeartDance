@@ -6,3 +6,5 @@ test.*
 .vscode/
 .gradio/
 ~*
+*.csv
+*.pkl
