@@ -15,6 +15,10 @@ math: katex
 - 董文杰：报告撰写、PPT 制作；
 - 项目源码：[https://github.com/Mr-LUHAOYU/HeartDance/tree/main/Project1-LLM](https://github.com/Mr-LUHAOYU/HeartDance/tree/main/Project1-LLM)
 
+---
+
+![bg fit](img-src/git.png)
+
 ## 主要特性
 
 - 支持图像和markdown文件的批量处理

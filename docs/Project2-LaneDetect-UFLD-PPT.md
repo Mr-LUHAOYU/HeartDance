@@ -15,14 +15,13 @@ math: katex
 - 董文杰：PPT 制作；
 - 项目源码：[https://github.com/Mr-LUHAOYU/HeartDance/tree/main/Project2-LaneDetect-UFLD](https://github.com/Mr-LUHAOYU/HeartDance/tree/main/Project2-LaneDetect-UFLD)
 
-## 目录
+## 抽帧：压线中
 
-1. 项目概述
-2. 环境依赖
-3. 项目结构
-4. 模块说明
-5. 算法原理
-6. 使用方法
+![bg left fit](./img-src/lane-detect-5-on.png)
+
+## 抽帧：压线中
+
+![bg right fit](./img-src/lane-detect-6-on.png)
 
 ## 项目概述
 
@@ -79,15 +78,15 @@ company.yml
 
 ---
 
-3. **压线判定 (is_vehicle_crossing)**
-   - 判断逻辑：车辆底部中心点投影检测
-   - 容差范围：±430像素纵向区域
-   - 多车道线交叉检测
-
-4. **鸟瞰图变换 (bird_view_transform)**
+3. **鸟瞰图变换 (bird_view_transform)**
    - 基于ORB特征匹配的自适应仿射变换
    - 支持动态参考帧更新
    - 双线性插值保真处理
+
+4. **压线判定 (is_vehicle_crossing)**
+   - 判断逻辑：车辆底部中心点投影检测
+   - 容差范围：±430像素纵向区域
+   - 多车道线交叉检测
 
 ## 算法原理
 
@@ -104,15 +103,5 @@ company.yml
 2. BruteForce-Hamming匹配
 3. RANSAC仿射矩阵估计
 4. 双线性插值变换
-
-## 示例输出
-
-控制台输出：
-
-```
-🚗 车辆压线: 车中心 (652, 720), 车道线 x: [645, 653]
-保存压线帧：../车压线视频/test.mp4
-车牌识别结果: 浙A12345
-```
 
 ## 恳请老师批评指正
