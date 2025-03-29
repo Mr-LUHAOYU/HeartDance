@@ -30,4 +30,4 @@ def create_interface():
 
 
 if __name__ == "__main__":
-    create_interface().launch(server_port=7860, share=True)
+    create_interface().launch(server_port=7860)

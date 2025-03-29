@@ -14,6 +14,12 @@ for MODEL_NAME in coder_models:
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
     )
 
+coder_models.append('deepseek')
+coder_clients['deepseek'] = OpenAI(
+    api_key=os.getenv('DEEPSEEK_API_KEY'),
+    base_url="https://api.deepseek.com/v1",
+)
+
 for MODEL_NAME in ocr_models:
     ocr_clients[MODEL_NAME] = OpenAI(
         api_key=os.getenv('QWEN_API_KEY'),
