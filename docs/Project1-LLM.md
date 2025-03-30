@@ -12,7 +12,7 @@
 
 2. **code_from_formulas_dir.py**
    - 根据公式描述生成Python函数
-   - 使用 `['qwen-plus', 'qwq-32b', 'qwq-plus']` 模型进行代码生成
+   - 使用 `['qwen-plus', 'qwq-32b', 'qwq-plus', 'deepseek']` 模型进行代码生成
    - 处理包含公式描述的markdown文件
    - 输出带有适当错误处理和参数检查的Python函数
 
