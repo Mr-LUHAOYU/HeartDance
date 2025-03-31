@@ -1,5 +1,9 @@
 # 企业实训
 
+项目地址：
+
+- [https://github.com/Mr-LUHAOYU/HeartDance](https://github.com/Mr-LUHAOYU/HeartDance)
+
 项目成员：
 
 - [陆昊宇](https://github.com/Mr-LUHAOYU)、[董文杰](https://github.com/Explorer-Dong)、[李世博](https://github.com/waferen)、[符皓宇](https://github.com/fhyfly123)。
